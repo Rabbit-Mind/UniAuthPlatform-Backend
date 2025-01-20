@@ -1,0 +1,105 @@
+spring:
+  cloud:
+    gateway:
+      # 动态路由
+      dynamic-route:
+        type: redis
+        enabled: true
+      enabled: true
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+      routes:
+        - id: ramid-ua-platform-iam
+          uri: lb://ramid-ua-platform-iam
+          predicates:
+            - Path=/iam/**
+          filters:
+            # 密码加密过滤器，如果配置了那么在前端传递的 password 请进行 AES 加密
+            - name: PasswordDecoderFilter
+              args:
+                password: 'password'
+                loginUrl: '/oauth2/token'
+                # 要 16 位
+                encodeKey: 'we-ramid-groups'
+            #            - name: BlackWhiteList
+            #              args:
+            #                type: BLACK_LIST
+            #                ip-list: 127.0.0.1,0:0:0:0:0:0:0:1
+            #                ignore-intranet: true
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 100   # 允许用户每秒处理多少个请求
+                redis-rate-limiter.burstCapacity: 100   # 令牌桶的容量，允许在一秒钟内完成的最大请求数
+                # 使用 IP 限流策略（使用 SpEL 按名称引用 bean）
+                key-resolver: "#{@ipKeyResolver}"
+            - StripPrefix=1
+            - PreserveHostHeader
+            - name: Retry
+              args:
+                retries: 1
+                statuses: BAD_GATEWAY
+                backoff:
+                  firstBackoff: 200ms
+                  maxBackoff: 500ms
+                  factor: 1
+                  basedOnPreviousValue: false
+                  exceptions: TimeoutException
+        - id: ramid-ua-platform-iam-ws
+          uri: lb:ws://ramid-ua-platform-iam
+          predicates:
+            - Path=/iam/**
+          filters:
+            - StripPrefix=1
+        - id: ramid-ua-platform-suite
+          uri: lb://ramid-ua-platform-suite
+          predicates:
+            - Path=/suite/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: ramid-ua-platform-monitor
+          uri: lb://ramid-ua-platform-monitor
+          predicates:
+            - Path=/monitor/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: ramid-ua-platform-demo
+          uri: lb://ramid-ua-platform-demo
+          predicates:
+            - Path=/demo/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: ramid-ua-platform-wms
+          uri: lb://ramid-ua-platform-wms
+          predicates:
+            - Path=/wms/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: ramid-ua-platform-tms
+          uri: lb://ramid-ua-platform-tms
+          predicates:
+            - Path=/tms/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: ramid-ua-platform-bpm
+          uri: lb://ramid-ua-platform-bpm
+          predicates:
+            - Path=/bpm/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+      loadbalancer:
+        use404: true
+      httpclient:
+        response-timeout: 300s
+        pool:
+          type: elastic
+          max-idle-time: 30s
+          max-connections: 1000
+          acquire-timeout: 180000

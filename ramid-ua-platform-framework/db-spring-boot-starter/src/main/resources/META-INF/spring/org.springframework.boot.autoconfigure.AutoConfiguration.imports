@@ -1,0 +1,4 @@
+com.ramid.framework.db.configuration.BaseMybatisConfiguration
+com.ramid.framework.db.encode.EncryptHikariDataSourceConfiguration
+com.ramid.framework.db.dynamic.DynamicDataSourceEventBusAutoConfiguration
+com.ramid.framework.db.dynamic.DynamicDatasourceWebAutoConfigurer

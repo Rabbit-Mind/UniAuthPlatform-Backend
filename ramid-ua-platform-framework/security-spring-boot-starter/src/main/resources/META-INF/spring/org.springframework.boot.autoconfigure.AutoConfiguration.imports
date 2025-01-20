@@ -1,0 +1,2 @@
+com.ramid.framework.security.configuration.OAuth2AutoConfiguration
+com.ramid.framework.security.configuration.OAuth2ExceptionHandler

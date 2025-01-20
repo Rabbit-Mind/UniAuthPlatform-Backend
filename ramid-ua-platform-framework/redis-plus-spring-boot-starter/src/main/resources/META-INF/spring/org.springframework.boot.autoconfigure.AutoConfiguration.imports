@@ -1,0 +1,3 @@
+com.ramid.framework.redis.plus.RedisPlusAutoConfiguration
+com.ramid.framework.redis.plus.cache.RedisCacheAutoConfiguration
+com.ramid.framework.redis.plus.listener.RedisListenerAutoConfiguration
