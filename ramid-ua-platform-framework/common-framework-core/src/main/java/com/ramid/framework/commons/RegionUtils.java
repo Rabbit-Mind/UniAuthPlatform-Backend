@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 根据ip查询地址
@@ -60,7 +61,7 @@ public final class RegionUtils {
      */
     public static String getRegion(String ip) {
         try {
-            if (SEARCHER == null || StrUtil.isEmpty(ip)) {
+            if (SEARCHER == null || StrUtil.isEmpty(ip) || (Objects.equals(ip, "0:0:0:0:0:0:0:1"))) {
                 log.error("searcher or ip is null");
                 return StrUtil.EMPTY;
             }
