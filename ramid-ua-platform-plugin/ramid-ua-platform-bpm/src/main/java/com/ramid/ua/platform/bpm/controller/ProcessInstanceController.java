@@ -1,11 +1,13 @@
 package com.ramid.ua.platform.bpm.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ramid.ua.platform.bpm.domain.entity.ProcessTaskComment;
+import com.ramid.ua.platform.bpm.domain.enums.TaskCommentType;
 import com.ramid.ua.platform.bpm.domain.req.ProcessInstancePageReq;
 import com.ramid.ua.platform.bpm.domain.resp.ProcessInstanceDetailResp;
+import com.ramid.ua.platform.bpm.domain.resp.ProcessInstanceFormPreviewResp;
 import com.ramid.ua.platform.bpm.domain.resp.ProcessInstancePageResp;
 import com.ramid.ua.platform.bpm.domain.resp.ProcessTaskCommentResp;
-import com.ramid.ua.platform.bpm.domain.resp.RenderFormResp;
 import com.ramid.ua.platform.bpm.feign.domain.req.StartInstanceReq;
 import com.ramid.ua.platform.bpm.feign.domain.resp.StartInstanceResp;
 import com.ramid.ua.platform.bpm.service.ProcessInstanceService;
@@ -68,15 +70,13 @@ public class ProcessInstanceController {
 
     @GetMapping("/{id}/form-preview")
     @Operation(summary = "表单渲染", description = "表单渲染")
-    public RenderFormResp renderForm(@PathVariable String id) {
-        return processInstanceService.renderForm(id);
+    public ProcessInstanceFormPreviewResp formPreview(@PathVariable String id) {
+        return processInstanceService.formPreview(id);
     }
 
-    @GetMapping("/{id}/approval_infos")
+    @GetMapping("/{id}/comments")
     @Operation(summary = "审核信息", description = "审核信息")
-    public List<ProcessTaskCommentResp> approvalInfo(@PathVariable String id) {
-        return processInstanceService.approvalInfo(id);
+    public List<ProcessTaskCommentResp> comments(@PathVariable String id, TaskCommentType type) {
+        return processInstanceService.comments(id, type);
     }
-
-
 }

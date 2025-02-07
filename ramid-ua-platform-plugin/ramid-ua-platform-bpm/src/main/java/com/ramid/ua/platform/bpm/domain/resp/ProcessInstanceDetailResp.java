@@ -41,6 +41,8 @@ public class ProcessInstanceDetailResp {
     private Instant processEndTime;
     @Schema(description = "流程实例节点信息")
     private List<ProcessInstanceActivityNode> nodeList;
+    @Schema(description = "评论信息")
+    private List<ProcessTaskCommentResp> commentList;
 
     @Data
     @Builder
