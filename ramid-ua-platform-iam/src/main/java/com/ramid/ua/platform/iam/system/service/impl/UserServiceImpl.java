@@ -218,7 +218,7 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
 
     private final DatabaseProperties databaseProperties;
 
-    private static final List<String> ADMIN_ROLE = List.of("PLATFORM-ADMIN", "TENANT-ADMIN");
+    private static final List<String> ADMIN_ROLE = List.of("SuperAdmin", "TenantAdmin");
 
     public void setFuncPermissions(UserInfoDetails info) {
         Collection<String> roles = info.getRoles();

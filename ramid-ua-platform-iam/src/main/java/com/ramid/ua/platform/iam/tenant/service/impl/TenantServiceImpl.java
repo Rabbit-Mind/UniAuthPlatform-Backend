@@ -184,7 +184,7 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
         }
         if (multiTenant.getType() == MultiTenantType.COLUMN) {
             final Role role = Optional.ofNullable(roleMapper.selectOne(Wraps.<Role>lbQ()
-                    .eq(Role::getCode, "TENANT-ADMIN"))).orElseThrow(() -> CheckedException.notFound("内置租户管理员角色不存在"));
+                    .eq(Role::getCode, "TenantAdmin"))).orElseThrow(() -> CheckedException.notFound("内置租户管理员角色不存在"));
             final List<User> users = this.userMapper.selectByTenantId(tenant.getId());
             if (CollUtil.isNotEmpty(users)) {
                 final List<Long> userIdList = users.stream().map(User::getId).distinct().collect(Collectors.toList());
