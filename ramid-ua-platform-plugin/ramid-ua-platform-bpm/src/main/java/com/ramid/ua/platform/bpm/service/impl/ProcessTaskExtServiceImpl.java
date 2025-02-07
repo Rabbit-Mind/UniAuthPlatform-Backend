@@ -88,7 +88,6 @@ public class ProcessTaskExtServiceImpl implements ProcessTaskExtService {
     public void comment(String taskId, ProcessTaskApprovalReq req) {
         Task task = Optional.ofNullable(taskService.createTaskQuery().taskId(taskId).singleResult()).orElseThrow(() -> CheckedException.notFound("bpm.task.not-exists-or-completed"));
         // 理论上自己扩展表记录了就不需要再写到 camunda 中浪费存储空间了
-        // Activity_1qeyyv2
         task.getTaskDefinitionKey();
         this.processTaskCommentMapper.insert(ProcessTaskComment.builder()
                 .type(TaskCommentType.COMMENT)
@@ -123,7 +122,6 @@ public class ProcessTaskExtServiceImpl implements ProcessTaskExtService {
                 .procTaskId(ext.getProcTaskId())
                 .procInstId(ext.getProcInstId())
                 .remark(remark)
-                .attachment("todo 暂时没考虑好咋存储")
                 .build());
     }
 
@@ -136,14 +134,12 @@ public class ProcessTaskExtServiceImpl implements ProcessTaskExtService {
             return;
         }
         this.taskService.delegateTask(taskId, req.getUserId());
-//        this.processTaskExtMapper.updateById(ProcessTaskExt.builder().id(ext.getId()).assignee(req.getUserId()).build());
         log.debug("任务委派成功......");
         this.processTaskCommentMapper.insert(ProcessTaskComment.builder()
                 .type(TaskCommentType.TRANSFER)
                 .procTaskId(ext.getProcTaskId())
                 .procInstId(ext.getProcInstId())
                 .remark(req.getRemark())
-                .attachment("todo 暂时没考虑好咋存储")
                 .build());
     }
 
