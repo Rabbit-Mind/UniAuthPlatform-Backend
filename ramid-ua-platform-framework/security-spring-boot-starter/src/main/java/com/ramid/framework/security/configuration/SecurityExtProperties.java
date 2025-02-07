@@ -75,7 +75,7 @@ public class SecurityExtProperties {
          * 用户信息KEY
          * %s = token
          */
-        private String infoKeyPrefix = "wp-token:userinfo:%s";
+        private String infoKeyPrefix = "ua-token:userinfo:%s";
         
     }
     

@@ -47,6 +47,7 @@ import com.ramid.framework.db.properties.MultiTenantType;
 import com.ramid.framework.db.utils.TenantHelper;
 import com.ramid.framework.log.diff.core.annotation.DiffLog;
 import com.ramid.framework.log.diff.core.context.DiffLogContext;
+import com.ramid.framework.security.configuration.SecurityExtProperties;
 import com.ramid.framework.security.domain.UserInfoDetails;
 import com.ramid.framework.security.utils.PasswordEncoderHelper;
 import com.ramid.ua.platform.iam.base.domain.dto.req.ChangeUserInfoReq;
@@ -78,9 +79,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * @author Levin
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -94,6 +92,7 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
     private final TenantMapper tenantMapper;
     private final DataScopeService dataScopeService;
     private final SaTokenDao saTokenDao;
+    private final SecurityExtProperties extProperties;
 
     @Override
     public void create(UserSaveReq req) {
@@ -255,8 +254,8 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
             if (StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) < -1) {
                 continue;
             }
-            // TODO 需要优化,不应该暴露 token key 给开发
-            UserInfoDetails info = JSONObject.parseObject((String) saTokenDao.getObject("wp-token:userinfo:" + token), UserInfoDetails.class);
+            String key = String.format(extProperties.getServer().getInfoKeyPrefix(), token);
+            UserInfoDetails info = JSONObject.parseObject((String) saTokenDao.getObject(key), UserInfoDetails.class);
             if (info == null || info.getLoginLog() == null) {
                 continue;
             }
