@@ -2,7 +2,6 @@ package com.ramid.framework.db.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
-import com.ramid.framework.db.mybatisplus.datascope.holder.DataPermissionRuleHolder;
 import com.ramid.framework.db.properties.DatabaseProperties;
 import com.ramid.framework.db.properties.MultiTenantType;
 import lombok.AccessLevel;
@@ -31,7 +30,7 @@ public class TenantHelper {
             DynamicDataSourceContextHolder.push(properties.getMultiTenant().getDefaultDsName());
             return supplier.get();
         } finally {
-            DataPermissionRuleHolder.poll();
+            DynamicDataSourceContextHolder.poll();
         }
     }
 
@@ -50,7 +49,7 @@ public class TenantHelper {
             DynamicDataSourceContextHolder.push(multiTenant.buildTenantDataSourceName(tenantCode));
             return supplier.get();
         } finally {
-            DataPermissionRuleHolder.poll();
+            DynamicDataSourceContextHolder.poll();
         }
     }
 
