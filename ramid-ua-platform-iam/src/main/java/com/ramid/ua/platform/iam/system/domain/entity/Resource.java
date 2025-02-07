@@ -70,8 +70,7 @@ public class Resource extends SuperEntity<Long> {
     
     @Schema(description = "面是否开启缓存，开启后页面会缓存，不会重新加载，仅在标签页启用时有效")
     private Boolean keepAlive;
-    
-    @TableField("global")
+
     @Schema(description = "全局菜单")
     private Boolean global;
     
@@ -83,5 +82,7 @@ public class Resource extends SuperEntity<Long> {
     
     @Schema(description = "描述")
     private String description;
-    
+
+    @Schema(description = "自定义菜单 meta 属性")
+    private String meta;
 }

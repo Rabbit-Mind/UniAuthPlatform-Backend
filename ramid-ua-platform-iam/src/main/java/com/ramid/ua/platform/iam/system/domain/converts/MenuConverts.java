@@ -21,6 +21,7 @@ package com.ramid.ua.platform.iam.system.domain.converts;
 
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Maps;
 import com.ramid.framework.commons.entity.BaseConverts;
 import com.ramid.ua.platform.iam.system.domain.dto.resp.VisibleResourceResp;
@@ -54,6 +55,9 @@ public class MenuConverts {
             }
             if (route.getType() == ResourceType.IFRAME) {
                 meta.put("iframeSrc", route.getComponent());
+            }
+            if (StrUtil.isNotBlank(route.getMeta())) {
+                meta.putAll(JSON.parseObject(route.getMeta()));
             }
             return meta;
         }
