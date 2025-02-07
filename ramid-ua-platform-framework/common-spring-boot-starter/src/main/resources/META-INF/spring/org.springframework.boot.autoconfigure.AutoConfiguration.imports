@@ -1,5 +1,5 @@
 com.ramid.framework.boot.base.GlobalExceptionHandler
-com.ramid.framework.boot.base.configuration.InitBaseConfiguration
+com.ramid.framework.boot.base.configuration.DefaultWebMvcConfiguration
 com.ramid.framework.boot.log.configuration.AccessLogAutoConfiguration
 com.ramid.framework.boot.remote.configuration.RemoteAutoConfiguration
 com.ramid.framework.boot.undertow.UndertowPoolCustomizer
