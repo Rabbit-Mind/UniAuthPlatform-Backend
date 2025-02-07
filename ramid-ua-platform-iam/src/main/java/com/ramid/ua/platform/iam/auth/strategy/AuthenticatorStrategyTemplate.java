@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.strategy;
+package com.ramid.ua.platform.iam.auth.strategy;
 
 import cn.dev33.satoken.context.SaHolder;
 import cn.hutool.core.lang.Assert;

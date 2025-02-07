@@ -18,3 +18,10 @@ spring:
       config:
         server-addr: ${spring.cloud.nacos.server-addr}
         namespace: ramid-ua
+extend:
+  third-auth:
+    config-map:
+      gitee:
+        client-id:
+        client-secret:
+        redirect-uri: http://localhost:5002/third-auth/gitee/callback

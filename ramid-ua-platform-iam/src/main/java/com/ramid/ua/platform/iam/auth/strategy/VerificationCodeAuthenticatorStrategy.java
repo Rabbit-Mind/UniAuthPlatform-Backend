@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.strategy;
+package com.ramid.ua.platform.iam.auth.strategy;
 
 import com.ramid.framework.commons.entity.Result;
 import com.ramid.framework.commons.exception.CheckedException;

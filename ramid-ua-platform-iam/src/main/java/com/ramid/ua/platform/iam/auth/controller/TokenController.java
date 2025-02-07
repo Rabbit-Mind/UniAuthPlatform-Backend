@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.controller;
+package com.ramid.ua.platform.iam.auth.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaIgnore;
@@ -30,13 +30,13 @@ import com.ramid.framework.commons.exception.CheckedException;
 import com.ramid.framework.commons.security.AuthenticationContext;
 import com.ramid.framework.security.configuration.server.support.AuthenticationPrincipal;
 import com.ramid.framework.security.domain.UserInfoDetails;
+import com.ramid.ua.platform.iam.auth.strategy.AuthenticatorStrategyTemplate;
 import com.ramid.ua.platform.iam.base.domain.dto.req.ChangePasswordReq;
 import com.ramid.ua.platform.iam.base.domain.dto.req.ChangeUserInfoReq;
 import com.ramid.ua.platform.iam.system.domain.dto.req.LoginReq;
 import com.ramid.ua.platform.iam.system.domain.dto.req.UserOnlinePageReq;
 import com.ramid.ua.platform.iam.system.domain.dto.resp.LoginResp;
 import com.ramid.ua.platform.iam.system.service.UserService;
-import com.ramid.ua.platform.iam.system.strategy.AuthenticatorStrategyTemplate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
