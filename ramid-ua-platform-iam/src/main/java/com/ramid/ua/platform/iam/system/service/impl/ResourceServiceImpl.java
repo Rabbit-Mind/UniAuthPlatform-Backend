@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -70,10 +71,18 @@ public class ResourceServiceImpl extends SuperServiceImpl<ResourceMapper, Resour
 
     @Override
     public List<VisibleResourceResp> findVisibleResource(ResourceQueryReq req) {
-        // TODO 如果动态数据源应该分批次查询,先查询出这个租户下的全部权限,
-        List<Long> roleResIdList = this.userMapper.selectResByUserId(req.getUserId());
-        List<Long> productResIdList = TenantHelper.executeWithMaster(() -> this.productDefResMapper.selectDefRedByTenantId(context.tenantId()));
-        List<Long> resIdList = CollUtil.addAll(roleResIdList, productResIdList).stream().distinct().toList();
+        Collection<Long> resIdList = TenantHelper.executeWithIsolationType(() -> {
+            List<Long> list = TenantHelper.executeWithMaster(() -> {
+                List<Long> roleResIdList = this.roleResMapper.selectTenantAdminResIdList();
+                List<Long> productResIdList = this.productDefResMapper.selectDefRedByTenantId(context.tenantId());
+                return CollUtil.addAll(roleResIdList, productResIdList).stream().distinct().toList();
+            });
+            if (CollUtil.isEmpty(list)) {
+                return null;
+            }
+            List<Long> roleResIdList = this.userMapper.selectResByUserId(req.getUserId());
+            return CollUtil.intersection(list, roleResIdList);
+        }, () -> this.userMapper.selectResByUserId(req.getUserId()));
         // 解决租户越权行为,菜单数据直接从主库查询,减少数据分发次数
         List<Resource> list = TenantHelper.executeWithMaster(() -> this.baseMapper.selectList(Wraps.<Resource>lbQ()
                 .eq(Resource::getStatus, req.getStatus())
