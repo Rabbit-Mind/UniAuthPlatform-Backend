@@ -1,7 +1,6 @@
 package com.ramid.ua.platform.bpm.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.ramid.ua.platform.bpm.domain.entity.ProcessTaskComment;
 import com.ramid.ua.platform.bpm.domain.enums.TaskCommentType;
 import com.ramid.ua.platform.bpm.domain.req.ProcessInstancePageReq;
 import com.ramid.ua.platform.bpm.domain.resp.ProcessInstanceDetailResp;
