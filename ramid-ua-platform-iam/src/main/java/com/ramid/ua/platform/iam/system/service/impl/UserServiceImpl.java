@@ -52,7 +52,7 @@ import com.ramid.framework.security.domain.UserInfoDetails;
 import com.ramid.framework.security.utils.PasswordEncoderHelper;
 import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
 import com.ramid.ua.platform.iam.base.domain.dto.req.ChangeUserInfoReq;
-import com.ramid.ua.platform.iam.base.domain.entity.LoginLog;
+import com.ramid.ua.platform.iam.auth.domain.entity.LoginLog;
 import com.ramid.ua.platform.iam.system.domain.dto.req.UserOnlinePageReq;
 import com.ramid.ua.platform.iam.system.domain.dto.req.UserPageReq;
 import com.ramid.ua.platform.iam.system.domain.dto.req.UserSaveReq;

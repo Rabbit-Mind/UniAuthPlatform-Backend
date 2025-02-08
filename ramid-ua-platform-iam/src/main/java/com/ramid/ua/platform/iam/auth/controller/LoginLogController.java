@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.base.controller;
+package com.ramid.ua.platform.iam.auth.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ramid.framework.db.mybatisplus.datascope.util.DataPermissionUtils;
 import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.ua.platform.iam.base.domain.dto.req.LoginLogPageReq;
-import com.ramid.ua.platform.iam.base.domain.entity.LoginLog;
-import com.ramid.ua.platform.iam.base.service.LoginLogService;
+import com.ramid.ua.platform.iam.auth.domain.entity.LoginLog;
+import com.ramid.ua.platform.iam.auth.service.LoginLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

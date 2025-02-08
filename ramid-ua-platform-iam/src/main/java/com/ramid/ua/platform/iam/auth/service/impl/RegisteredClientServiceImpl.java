@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.service.impl;
+package com.ramid.ua.platform.iam.auth.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson2.JSON;
@@ -28,7 +28,7 @@ import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.ua.platform.iam.system.domain.dto.req.RegisteredClientReq;
 import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
 import com.ramid.ua.platform.iam.system.repository.RegisteredClientMapper;
-import com.ramid.ua.platform.iam.system.service.RegisteredClientService;
+import com.ramid.ua.platform.iam.auth.service.RegisteredClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

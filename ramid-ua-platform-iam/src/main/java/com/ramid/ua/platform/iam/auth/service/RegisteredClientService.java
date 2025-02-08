@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.service;
+package com.ramid.ua.platform.iam.auth.service;
 
 import com.ramid.framework.db.mybatisplus.ext.SuperService;
 import com.ramid.ua.platform.iam.system.domain.dto.req.RegisteredClientReq;

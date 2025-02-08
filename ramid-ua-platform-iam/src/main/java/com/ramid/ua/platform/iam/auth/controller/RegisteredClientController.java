@@ -7,7 +7,7 @@ import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.ua.platform.iam.system.domain.dto.req.RegisteredClientReq;
 import com.ramid.ua.platform.iam.system.domain.dto.resp.RegisteredClientResp;
 import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
-import com.ramid.ua.platform.iam.system.service.RegisteredClientService;
+import com.ramid.ua.platform.iam.auth.service.RegisteredClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;

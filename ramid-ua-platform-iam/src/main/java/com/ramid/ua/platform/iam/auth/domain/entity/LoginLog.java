@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.base.domain.entity;
+package com.ramid.ua.platform.iam.auth.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ramid.framework.commons.entity.Entity;

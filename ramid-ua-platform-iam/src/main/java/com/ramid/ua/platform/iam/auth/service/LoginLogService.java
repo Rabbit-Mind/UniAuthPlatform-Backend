@@ -17,11 +17,16 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.service;
+package com.ramid.ua.platform.iam.auth.service;
+
+import com.ramid.framework.db.mybatisplus.ext.SuperService;
+import com.ramid.ua.platform.iam.auth.domain.entity.LoginLog;
 
 /**
+ * 登录日志
+ *
  * @author Levin
  */
-public interface TokenService {
+public interface LoginLogService extends SuperService<LoginLog> {
     
 }

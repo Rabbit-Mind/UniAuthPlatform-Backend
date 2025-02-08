@@ -17,32 +17,24 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.base.repository;
+package com.ramid.ua.platform.iam.auth.service.impl;
 
-import com.ramid.framework.db.mybatisplus.ext.SuperMapper;
-import com.ramid.ua.platform.iam.base.domain.entity.LoginLog;
-import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
+import com.ramid.framework.db.mybatisplus.ext.SuperServiceImpl;
+import com.ramid.ua.platform.iam.auth.domain.entity.LoginLog;
+import com.ramid.ua.platform.iam.auth.repository.LoginLogMapper;
+import com.ramid.ua.platform.iam.auth.service.LoginLogService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
- * <p>
- * Mapper 接口
- * 系统日志
- * </p>
+ * 登录日志
  *
  * @author Levin
- * @since 2019-10-20
  */
-
-@Repository
-public interface LoginLogMapper extends SuperMapper<LoginLog> {
-    
-    /**
-     * 统计 IP 数据
-     *
-     * @return 统计结果
-     */
-    @Select("SELECT count(DISTINCT ( ip )) FROM c_login_log")
-    long countDistinctLoginIp();
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class LoginLogServiceImpl extends SuperServiceImpl<LoginLogMapper, LoginLog> implements LoginLogService {
     
 }
