@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.ramid.ua.platform.iam.system.domain.dto.req;
+package com.ramid.ua.platform.iam.auth.domain.dto.req;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,6 @@
 package com.ramid.ua.platform.iam.auth.service;
 
-import com.ramid.ua.platform.iam.system.domain.dto.resp.ThirdAuthResp;
+import com.ramid.ua.platform.iam.auth.domain.dto.resp.ThirdAuthResp;
 import com.ramid.ua.platform.iam.system.domain.enums.ThirdAuthType;
 import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.AuthRequest;

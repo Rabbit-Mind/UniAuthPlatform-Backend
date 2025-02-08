@@ -2,7 +2,7 @@ package com.ramid.ua.platform.iam.auth.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import com.ramid.ua.platform.iam.auth.service.ThirdAuthTemplate;
-import com.ramid.ua.platform.iam.system.domain.dto.resp.ThirdAuthResp;
+import com.ramid.ua.platform.iam.auth.domain.dto.resp.ThirdAuthResp;
 import com.ramid.ua.platform.iam.system.domain.enums.ThirdAuthType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;

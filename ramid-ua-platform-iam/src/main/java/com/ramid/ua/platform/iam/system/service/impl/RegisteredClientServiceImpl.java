@@ -26,7 +26,7 @@ import com.ramid.framework.commons.exception.CheckedException;
 import com.ramid.framework.db.mybatisplus.ext.SuperServiceImpl;
 import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.ua.platform.iam.system.domain.dto.req.RegisteredClientReq;
-import com.ramid.ua.platform.iam.system.domain.entity.RegisteredClient;
+import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
 import com.ramid.ua.platform.iam.system.repository.RegisteredClientMapper;
 import com.ramid.ua.platform.iam.system.service.RegisteredClientService;
 import lombok.RequiredArgsConstructor;

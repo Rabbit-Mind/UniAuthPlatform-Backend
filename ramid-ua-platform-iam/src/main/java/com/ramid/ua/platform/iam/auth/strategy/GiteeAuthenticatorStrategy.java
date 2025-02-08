@@ -1,6 +1,5 @@
 package com.ramid.ua.platform.iam.auth.strategy;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.ramid.framework.commons.exception.CheckedException;
 import com.ramid.framework.db.utils.TenantHelper;
@@ -8,7 +7,7 @@ import com.ramid.ua.platform.iam.auth.support.AuthenticationPrincipal;
 import com.ramid.ua.platform.iam.auth.support.AuthenticatorStrategy;
 import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
 import com.ramid.ua.platform.iam.system.domain.entity.User;
-import com.ramid.ua.platform.iam.system.domain.entity.UserThirdAccount;
+import com.ramid.ua.platform.iam.auth.domain.entity.UserThirdAccount;
 import com.ramid.ua.platform.iam.system.domain.enums.ThirdAuthType;
 import com.ramid.ua.platform.iam.system.repository.ThirdAccountMapper;
 import com.ramid.ua.platform.iam.system.repository.UserMapper;

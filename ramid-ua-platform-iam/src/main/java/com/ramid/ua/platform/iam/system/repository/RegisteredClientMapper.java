@@ -20,7 +20,7 @@
 package com.ramid.ua.platform.iam.system.repository;
 
 import com.ramid.framework.db.mybatisplus.ext.SuperMapper;
-import com.ramid.ua.platform.iam.system.domain.entity.RegisteredClient;
+import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;

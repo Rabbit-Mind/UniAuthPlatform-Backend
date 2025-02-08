@@ -9,7 +9,7 @@ import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.ua.platform.iam.auth.support.AuthenticationPrincipal;
 import com.ramid.ua.platform.iam.auth.support.AuthenticatorStrategy;
 import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
-import com.ramid.ua.platform.iam.system.domain.entity.RegisteredClient;
+import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
 import com.ramid.ua.platform.iam.system.domain.entity.User;
 import com.ramid.ua.platform.iam.system.repository.RegisteredClientMapper;
 import lombok.RequiredArgsConstructor;

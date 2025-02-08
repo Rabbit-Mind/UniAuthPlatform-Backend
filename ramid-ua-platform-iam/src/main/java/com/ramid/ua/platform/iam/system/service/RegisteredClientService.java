@@ -21,7 +21,7 @@ package com.ramid.ua.platform.iam.system.service;
 
 import com.ramid.framework.db.mybatisplus.ext.SuperService;
 import com.ramid.ua.platform.iam.system.domain.dto.req.RegisteredClientReq;
-import com.ramid.ua.platform.iam.system.domain.entity.RegisteredClient;
+import com.ramid.ua.platform.iam.auth.domain.entity.RegisteredClient;
 
 /**
  * @author levin
