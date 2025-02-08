@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 2023 RAMID-UNI-AUTH-PLATFORM Authors. All Rights Reserved.
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.ramid.ua.platform.iam.tenant.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -34,6 +15,7 @@ import com.ramid.framework.db.mybatisplus.ext.SuperServiceImpl;
 import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.framework.db.properties.DatabaseProperties;
 import com.ramid.framework.db.properties.MultiTenantType;
+import com.ramid.framework.db.utils.TenantHelper;
 import com.ramid.ua.platform.iam.base.domain.entity.AreaEntity;
 import com.ramid.ua.platform.iam.base.domain.entity.SysDict;
 import com.ramid.ua.platform.iam.base.domain.entity.SysDictItem;
@@ -226,8 +208,7 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
     @DSTransactional(rollbackFor = Exception.class)
     public void refreshTenantDict(Long tenantId) {
         // 查询超管 所有字典数据
-        // TODO 默认查询租户ID = 1 的 , 后续改造成配置文件读取的 超管租户ID
-        List<SysDict> dictList = dictMapper.selectList(SysDict::getType, 1);
+        List<SysDict> dictList = TenantHelper.executeWithMaster(() -> dictMapper.selectList(SysDict::getType, 1));
         if (CollUtil.isEmpty(dictList)) {
             log.warn("未查询到有效的数据字典");
             return;
@@ -243,7 +224,7 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
                     return dict;
                 }).toList();
         List<Long> dictIdList = dictList.stream().map(Entity::getId).toList();
-        List<TenantDictItem> dictDataList = dictItemMapper.selectList(Wraps.<SysDictItem>lbQ().in(SysDictItem::getDictId, dictIdList))
+        List<TenantDictItem> dictDataList = TenantHelper.executeWithMaster(() -> dictItemMapper.selectList(Wraps.<SysDictItem>lbQ().in(SysDictItem::getDictId, dictIdList)))
                 .stream()
                 .map(x -> {
                     TenantDictItem item = BeanUtil.toBean(x, TenantDictItem.class);
@@ -254,7 +235,6 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
                     item.setLastModifiedName(context.nickName());
                     return item;
                 }).toList();
-        // TODO 暂未实现动态数据源刷新 => 如果是动态数据源需要手动切换一下DB
         // 理论上如果是管理员刷新租户字典那么需要给租户的数据给删除然后重新添加
         this.tenantDictMapper.delete(Wraps.<TenantDict>lbQ().eq(TenantDict::getTenantId, tenantId));
         this.tenantDictItemMapper.delete(Wraps.<TenantDictItem>lbQ().eq(TenantDictItem::getTenantId, tenantId));
