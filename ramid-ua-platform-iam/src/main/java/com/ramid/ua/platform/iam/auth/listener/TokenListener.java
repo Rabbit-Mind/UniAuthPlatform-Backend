@@ -13,6 +13,8 @@ import com.ramid.framework.commons.RegionUtils;
 import com.ramid.framework.db.utils.TenantHelper;
 import com.ramid.framework.security.configuration.SecurityExtProperties;
 import com.ramid.framework.security.domain.UserInfoDetails;
+import com.ramid.ua.platform.iam.auth.support.AuthenticationPrincipal;
+import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
 import com.ramid.ua.platform.iam.base.domain.entity.LoginLog;
 import com.ramid.ua.platform.iam.base.repository.LoginLogMapper;
 import com.ramid.ua.platform.iam.system.domain.entity.User;
@@ -26,8 +28,6 @@ import java.time.Instant;
 
 /**
  * 登录监听器
- *
- * @author Levin
  */
 @Slf4j
 @Component
@@ -55,9 +55,10 @@ public class TokenListener implements SaTokenListener {
         final UserAgent userAgent = UserAgentUtil.parse(ua);
         final Browser browser = userAgent.getBrowser();
         final Long userId = Long.parseLong(loginId.toString());
-        String principal = SaHolder.getStorage().getString("principal");
-        String principalType = SaHolder.getStorage().getString("principalType");
-        UserInfoDetails info = this.userService.userinfo(userId);
+        String principal = SaHolder.getStorage().getString(AuthenticationPrincipal.PRINCIPAL);
+        String principalType = SaHolder.getStorage().getString(AuthenticationPrincipal.PRINCIPAL_TYPE);
+        UserTenantAuthentication authentication = SaHolder.getStorage().getModel(AuthenticationPrincipal.AUTHENTICATION, UserTenantAuthentication.class);
+        UserInfoDetails info = this.userService.userinfo(authentication);
         LoginLog loginLog = LoginLog.builder().principal(principal)
                 .clientId(loginModel.getDevice())
                 .tenantId(info.getTenantId()).tenantCode(info.getTenantCode())

@@ -50,6 +50,7 @@ import com.ramid.framework.log.diff.core.context.DiffLogContext;
 import com.ramid.framework.security.configuration.SecurityExtProperties;
 import com.ramid.framework.security.domain.UserInfoDetails;
 import com.ramid.framework.security.utils.PasswordEncoderHelper;
+import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
 import com.ramid.ua.platform.iam.base.domain.dto.req.ChangeUserInfoReq;
 import com.ramid.ua.platform.iam.base.domain.entity.LoginLog;
 import com.ramid.ua.platform.iam.system.domain.dto.req.UserOnlinePageReq;
@@ -189,31 +190,40 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
 
     @Override
     public UserInfoDetails userinfo(Long userId) {
-        // TODO 后续通过注解和 API 方式动态控制
+        // TODO 后续通过注解和 API 方式动态控制，MP3.5.10 支持 api.execute 方式
         InterceptorIgnoreHelper.handle(IgnoreStrategy.builder().tenantLine(true).build());
         final User user = Optional.ofNullable(this.baseMapper.selectById(userId))
                 .orElseThrow(() -> CheckedException.notFound("用户信息不存在"));
-        Tenant tenant = TenantHelper.executeWithMaster(() -> this.tenantMapper.selectById(user.getTenantId()));
-        final UserInfoDetails info = new UserInfoDetails();
-        info.setTenantCode(tenant.getCode());
-        info.setTenantName(tenant.getName());
-        info.setTenantId(user.getTenantId());
-        info.setUserId(user.getId());
-        info.setUsername(user.getUsername());
-        info.setNickName(user.getNickName());
-        info.setMobile(user.getMobile());
-        info.setEmail(user.getEmail());
-        info.setDescription(user.getDescription());
-        info.setBirthday(user.getBirthday());
-        info.setEnabled(user.getStatus());
-        info.setAvatar(user.getAvatar());
-        info.setPassword(user.getPassword());
-        final List<Role> roles = this.roleMapper.findRoleByUserId(user.getId());
-        info.setRoles(roles.stream().map(Role::getCode).toList());
-        setFuncPermissions(info);
-        // 为了减少一次数据库查询,所以用了这个不规范写法
-        info.setDataPermission(dataScopeService.getDataScopeById(user.getId()));
-        return info;
+        Tenant tenant = this.tenantMapper.selectById(user.getTenantId());
+        return userinfo(UserTenantAuthentication.builder().user(user).tenant(tenant).build());
+    }
+
+    @Override
+    public UserInfoDetails userinfo(UserTenantAuthentication authentication) {
+        User user = authentication.getUser();
+        Tenant tenant = authentication.getTenant();
+        return TenantHelper.executeWithTenantDb(tenant.getCode(), () -> {
+            final UserInfoDetails info = new UserInfoDetails();
+            info.setTenantCode(tenant.getCode());
+            info.setTenantName(tenant.getName());
+            info.setTenantId(user.getTenantId());
+            info.setUserId(user.getId());
+            info.setUsername(user.getUsername());
+            info.setNickName(user.getNickName());
+            info.setMobile(user.getMobile());
+            info.setEmail(user.getEmail());
+            info.setDescription(user.getDescription());
+            info.setBirthday(user.getBirthday());
+            info.setEnabled(user.getStatus());
+            info.setAvatar(user.getAvatar());
+            info.setPassword(user.getPassword());
+            final List<Role> roles = this.roleMapper.findRoleByUserId(user.getId());
+            info.setRoles(roles.stream().map(Role::getCode).toList());
+            setFuncPermissions(info);
+            // 为了减少一次数据库查询,所以用了这个不规范写法
+            info.setDataPermission(dataScopeService.getDataScopeById(user.getId(), user.getOrgId()));
+            return info;
+        });
     }
 
     private final DatabaseProperties databaseProperties;

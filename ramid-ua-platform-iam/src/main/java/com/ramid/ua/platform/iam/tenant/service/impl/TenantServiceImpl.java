@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
+import com.google.common.collect.Maps;
 import com.ramid.framework.commons.BeanUtilPlus;
 import com.ramid.framework.commons.entity.Entity;
 import com.ramid.framework.commons.exception.CheckedException;
@@ -16,20 +17,15 @@ import com.ramid.framework.db.mybatisplus.wrap.Wraps;
 import com.ramid.framework.db.properties.DatabaseProperties;
 import com.ramid.framework.db.properties.MultiTenantType;
 import com.ramid.framework.db.utils.TenantHelper;
+import com.ramid.framework.security.utils.PasswordEncoderHelper;
 import com.ramid.ua.platform.iam.base.domain.entity.AreaEntity;
 import com.ramid.ua.platform.iam.base.domain.entity.SysDict;
 import com.ramid.ua.platform.iam.base.domain.entity.SysDictItem;
 import com.ramid.ua.platform.iam.base.repository.AreaMapper;
 import com.ramid.ua.platform.iam.base.repository.SysDictItemMapper;
 import com.ramid.ua.platform.iam.base.repository.SysDictMapper;
-import com.ramid.ua.platform.iam.system.domain.entity.Org;
-import com.ramid.ua.platform.iam.system.domain.entity.Role;
-import com.ramid.ua.platform.iam.system.domain.entity.User;
-import com.ramid.ua.platform.iam.system.domain.entity.UserRole;
-import com.ramid.ua.platform.iam.system.repository.OrgMapper;
-import com.ramid.ua.platform.iam.system.repository.RoleMapper;
-import com.ramid.ua.platform.iam.system.repository.UserMapper;
-import com.ramid.ua.platform.iam.system.repository.UserRoleMapper;
+import com.ramid.ua.platform.iam.system.domain.entity.*;
+import com.ramid.ua.platform.iam.system.repository.*;
 import com.ramid.ua.platform.iam.tenant.domain.dto.req.TenantConfigReq;
 import com.ramid.ua.platform.iam.tenant.domain.dto.req.TenantSaveReq;
 import com.ramid.ua.platform.iam.tenant.domain.dto.req.TenantSettingReq;
@@ -68,6 +64,7 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
     private final TenantSettingMapper tenantSettingMapper;
     private final AreaMapper areaMapper;
     private final RoleMapper roleMapper;
+    private final RoleResMapper roleResMapper;
     private final UserRoleMapper userRoleMapper;
     private final DbSettingService dbSettingService;
     private final DatabaseProperties properties;
@@ -152,58 +149,106 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
         // initSqlScript(tenantId);
         // }
     }
-    
+
     @Override
     @DSTransactional(rollbackFor = Exception.class)
     public void initSqlScript(Long id) {
-        final Tenant tenant = Optional.ofNullable(this.baseMapper.selectById(id)).orElseThrow(() -> CheckedException.notFound("租户信息不存在"));
+        final Tenant tenant = Optional.ofNullable(this.baseMapper.selectById(id))
+                .orElseThrow(() -> CheckedException.notFound("租户信息不存在"));
         if (!tenant.getStatus()) {
             throw CheckedException.badRequest("租户未启用");
         }
         final DatabaseProperties.MultiTenant multiTenant = properties.getMultiTenant();
-        if (StringUtils.equals(tenant.getCode(), multiTenant.getSuperTenantCode())) {
+        if (isSuperTenant(tenant, multiTenant)) {
             throw CheckedException.badRequest("超级租户,禁止操作");
         }
+
         if (multiTenant.getType() == MultiTenantType.COLUMN) {
-            final Role role = Optional.ofNullable(roleMapper.selectOne(Wraps.<Role>lbQ()
-                    .eq(Role::getCode, "TenantAdmin"))).orElseThrow(() -> CheckedException.notFound("内置租户管理员角色不存在"));
-            final List<User> users = this.userMapper.selectByTenantId(tenant.getId());
-            if (CollUtil.isNotEmpty(users)) {
-                final List<Long> userIdList = users.stream().map(User::getId).distinct().collect(Collectors.toList());
-                log.warn("开始清除租户 - {} 的系统数据,危险动作", tenant.getName());
-                if (CollUtil.isNotEmpty(userIdList)) {
-                    // 等于0全表会删。
-                    this.userRoleMapper.delete(Wraps.<UserRole>lbQ().in(UserRole::getUserId, userIdList));
-                }
-                this.userMapper.deleteByTenantId(tenant.getId());
-                this.roleMapper.deleteByTenantId(tenant.getId());
-                this.orgMapper.deleteByTenantId(tenant.getId());
-                log.warn("开始初始化租户 - {} 的系统数据,危险动作", tenant.getName());
-            }
-            Org org = new Org();
-            org.setLabel(tenant.getName());
-            org.setTenantId(tenant.getId());
-            org.setStatus(true);
-            org.setDescription("不可删除不可修改");
-            org.setParentId(0L);
-            org.setSequence(0);
-            this.orgMapper.insert(org);
-            User record = new User();
-            record.setUsername("admin");
-            // record.setPassword(passwordEncoder.encode("123456"));
-            record.setTenantId(id);
-            record.setNickName(tenant.getContactPerson());
-            record.setMobile(tenant.getContactPhone());
-            record.setStatus(true);
-            this.userMapper.insert(record);
-            this.userRoleMapper.insert(UserRole.builder().userId(record.getId()).roleId(role.getId()).build());
-            
+            initColumnTypeTenant(tenant);
         } else if (multiTenant.getType() == MultiTenantType.DATASOURCE) {
-            DynamicDataSourceHandler dynamicDataSourceHandler = SpringUtil.getBean(DynamicDataSourceHandler.class);
-            dynamicDataSourceHandler.initSqlScript(tenant.getCode(), Map.of("tenant_id", tenant.getId() + "", "tenant_name", tenant.getName()));
+            initDatasourceTypeTenant(tenant);
         }
     }
-    
+
+    private boolean isSuperTenant(Tenant tenant, DatabaseProperties.MultiTenant multiTenant) {
+        return StringUtils.equals(tenant.getCode(), multiTenant.getSuperTenantCode());
+    }
+
+    private Role selectTenantAdminRole() {
+        return Optional.ofNullable(roleMapper.selectOne(Wraps.<Role>lbQ()
+                        .eq(Role::getCode, "TENANT-ADMIN")))
+                .orElseThrow(() -> CheckedException.notFound("内置租户管理员角色不存在"));
+    }
+
+    private void clearTenantData(Tenant tenant, List<User> users) {
+        final List<Long> userIdList = users.stream().map(User::getId).distinct().collect(Collectors.toList());
+        log.warn("开始清除租户 - {} 的系统数据,危险动作", tenant.getName());
+        if (CollUtil.isNotEmpty(userIdList)) {
+            // 等于0全表会删。
+            this.userRoleMapper.delete(Wraps.<UserRole>lbQ().in(UserRole::getUserId, userIdList));
+        }
+        this.userMapper.deleteByTenantId(tenant.getId());
+        this.roleMapper.deleteByTenantId(tenant.getId());
+        this.orgMapper.deleteByTenantId(tenant.getId());
+    }
+
+
+    private void initColumnTypeTenant(Tenant tenant) {
+        final Role role = selectTenantAdminRole();
+        final List<User> users = this.userMapper.selectByTenantId(tenant.getId());
+        if (CollUtil.isNotEmpty(users)) {
+            clearTenantData(tenant, users);
+        }
+        initializeTenantData(tenant, role);
+    }
+
+    private void initDatasourceTypeTenant(Tenant tenant) {
+        DynamicDataSourceHandler dynamicDataSourceHandler = SpringUtil.getBean(DynamicDataSourceHandler.class);
+        Map<String, Object> variables = Maps.newHashMap();
+        variables.put("tenant_id", tenant.getId());
+        variables.put("tenant_name", tenant.getName());
+        dynamicDataSourceHandler.initSqlScript(tenant.getCode(), variables);
+        final Role role = selectTenantAdminRole();
+        List<RoleRes> list = this.roleResMapper.selectList(RoleRes::getRoleId, role.getId());
+        TenantHelper.executeWithTenantDb(tenant.getCode(), () -> {
+            final List<User> users = this.userMapper.selectByTenantId(tenant.getId());
+            if (CollUtil.isNotEmpty(users)) {
+                clearTenantData(tenant, users);
+            }
+            initializeTenantData(tenant, role);
+            if (CollUtil.isNotEmpty(list)) {
+                this.roleResMapper.insertBatchSomeColumn(list);
+            }
+            return null;
+        });
+    }
+
+
+    private void initializeTenantData(Tenant tenant, Role role) {
+        log.warn("开始初始化租户 - {} 的系统数据,危险动作", tenant.getName());
+
+        Org org = new Org();
+        org.setLabel(tenant.getName());
+        org.setTenantId(tenant.getId());
+        org.setStatus(true);
+        org.setDescription("不可删除不可修改");
+        org.setParentId(0L);
+        org.setSequence(0);
+        this.orgMapper.insert(org);
+
+        User record = new User();
+        record.setUsername("admin");
+        record.setPassword(PasswordEncoderHelper.encode("123456"));
+        record.setTenantId(tenant.getId());
+        record.setNickName(tenant.getContactPerson());
+        record.setMobile(tenant.getContactPhone());
+        record.setStatus(true);
+        this.userMapper.insert(record);
+
+        this.userRoleMapper.insert(UserRole.builder().userId(record.getId()).roleId(role.getId()).build());
+    }
+
+
     @Override
     @DSTransactional(rollbackFor = Exception.class)
     public void refreshTenantDict(Long tenantId) {
@@ -213,16 +258,14 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
             log.warn("未查询到有效的数据字典");
             return;
         }
-        List<TenantDict> dictTypeList = dictMapper.selectList(SysDict::getType, 1)
-                .stream()
-                .map(x -> {
-                    TenantDict dict = BeanUtil.toBean(x, TenantDict.class);
-                    dict.setId(null);
-                    dict.setLastModifiedTime(Instant.now());
-                    dict.setLastModifiedBy(context.userId());
-                    dict.setLastModifiedName(context.nickName());
-                    return dict;
-                }).toList();
+        List<TenantDict> dictTypeList = dictList.stream().map(x -> {
+            TenantDict dict = BeanUtil.toBean(x, TenantDict.class);
+            dict.setId(null);
+            dict.setLastModifiedTime(Instant.now());
+            dict.setLastModifiedBy(context.userId());
+            dict.setLastModifiedName(context.nickName());
+            return dict;
+        }).toList();
         List<Long> dictIdList = dictList.stream().map(Entity::getId).toList();
         List<TenantDictItem> dictDataList = TenantHelper.executeWithMaster(() -> dictItemMapper.selectList(Wraps.<SysDictItem>lbQ().in(SysDictItem::getDictId, dictIdList)))
                 .stream()
@@ -242,13 +285,13 @@ public class TenantServiceImpl extends SuperServiceImpl<TenantMapper, Tenant> im
         this.tenantDictMapper.insertBatchSomeColumn(dictTypeList);
         this.tenantDictItemMapper.insertBatchSomeColumn(dictDataList);
     }
-    
+
     @Override
     public TenantSettingResp settingInfo(Long tenantId) {
         TenantSetting setting = this.tenantSettingMapper.selectOne(TenantSetting::getTenantId, tenantId);
         return BeanUtil.toBean(setting, TenantSettingResp.class);
     }
-    
+
     @Override
     @DSTransactional(rollbackFor = Exception.class)
     public void saveSetting(Long tenantId, TenantSettingReq req) {

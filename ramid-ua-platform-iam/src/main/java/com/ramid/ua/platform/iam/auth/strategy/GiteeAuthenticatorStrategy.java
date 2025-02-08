@@ -4,8 +4,9 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.ramid.framework.commons.exception.CheckedException;
 import com.ramid.framework.db.utils.TenantHelper;
-import com.ramid.framework.security.configuration.server.support.AuthenticationPrincipal;
-import com.ramid.framework.security.configuration.server.support.AuthenticatorStrategy;
+import com.ramid.ua.platform.iam.auth.support.AuthenticationPrincipal;
+import com.ramid.ua.platform.iam.auth.support.AuthenticatorStrategy;
+import com.ramid.ua.platform.iam.auth.support.domain.UserTenantAuthentication;
 import com.ramid.ua.platform.iam.system.domain.entity.User;
 import com.ramid.ua.platform.iam.system.domain.entity.UserThirdAccount;
 import com.ramid.ua.platform.iam.system.domain.enums.ThirdAuthType;
@@ -23,8 +24,6 @@ import java.util.Optional;
 
 /**
  * GITEE 登录处理.
- *
- * @author Levin
  **/
 @Slf4j
 @Primary
@@ -46,7 +45,7 @@ public class GiteeAuthenticatorStrategy implements AuthenticatorStrategy {
     }
 
     @Override
-    public void authenticate(final AuthenticationPrincipal principal) {
+    public UserTenantAuthentication authenticate(final AuthenticationPrincipal principal) {
         log.warn("暂未实现授权绑定逻辑,比如授权后默认第一种授权类型生成 t_user 记录");
         String username = principal.getUsername();
         String tenantCode = principal.getTenantCode();
@@ -61,7 +60,7 @@ public class GiteeAuthenticatorStrategy implements AuthenticatorStrategy {
         log.debug("third-account => {}", JSON.toJSONString(thirdAccount));
         User user = Optional.ofNullable(TenantHelper.executeWithTenantDb(tenantCode, () -> userMapper.selectUserByTenantId("admin", tenant.getId())))
                 .orElseThrow(() -> CheckedException.notFound("账户不存在"));
-        StpUtil.login(user.getId(), principal.getClientId());
+        return UserTenantAuthentication.builder().user(user).tenant(tenant).build();
     }
 
     @Override
