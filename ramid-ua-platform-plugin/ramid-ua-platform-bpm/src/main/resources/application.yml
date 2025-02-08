@@ -9,7 +9,7 @@ spring:
       - optional:nacos:cloud-default.yaml
       - optional:nacos:${spring.application.name}.properties
       - optional:nacos:redis.properties
-      - optional:nacos:mybatis-plus-default.yaml?group=DEFAULT_GROUP&refreshEnabled=true #这是完写法
+      - optional:nacos:mybatis-plus-default.yaml?refreshEnabled=true #这是完写法
   cloud:
     nacos:
       server-addr: 127.0.0.1:8848
@@ -19,13 +19,14 @@ spring:
       config:
         server-addr: ${spring.cloud.nacos.server-addr}
         namespace: ramid-ua
+        group: ramid-ua
 extend:
   robot:
     enabled: true
     ding-talk:
       enabled: true
       # 填写钉钉 token
-      access-token: b607239418a01bd6b56b9ae9aa41f74c487b70ae8eedb14c4b8d0361d5199889
+      access-token:
     we-chat:
       enabled: false
       key: 123

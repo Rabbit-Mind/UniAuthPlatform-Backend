@@ -19,6 +19,7 @@ spring:
       config:
         server-addr: ${spring.cloud.nacos.server-addr}
         namespace: ramid-ua
+        group: ramid-ua
 extend:
   third-auth:
     config-map:
