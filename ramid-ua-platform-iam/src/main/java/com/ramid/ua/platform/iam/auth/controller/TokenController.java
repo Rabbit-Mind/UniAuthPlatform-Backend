@@ -89,7 +89,13 @@ public class TokenController {
     public void changeInfo(@Validated @RequestBody ChangeUserInfoReq req) {
         this.userService.changeInfo(req);
     }
-    
+
+    @GetMapping("/check_token")
+    @Operation(summary = "检查Token", description = "检查 Token 是否有效")
+    public long checkToken() {
+        return StpUtil.getTokenTimeout();
+    }
+
     @DeleteMapping("/logout")
     @Operation(summary = "退出登录")
     public void logout() {
